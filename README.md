@@ -17,12 +17,12 @@ Les releases proposent aussi `cli-install.sh` (macOS/Linux) et
 ```sh
 sh ./cli-install.sh
 # Version précise, installation utilisateur, mise à jour explicite :
-KIOFCO_VERSION=v0.1.0 KIOFCO_REPLACE=1 sh ./cli-install.sh
+KIOFCO_VERSION=v0.2.0 KIOFCO_REPLACE=1 sh ./cli-install.sh
 ```
 
 ```powershell
 .\cli-install.ps1
-.\cli-install.ps1 -Version v0.1.0 -Replace
+.\cli-install.ps1 -Version v0.2.0 -Replace
 ```
 
 Les scripts vérifient le checksum avant d’installer. Le SHA-256 contrôle
@@ -63,8 +63,14 @@ kiofco jobs get <job-id> --json
 ```
 
 Choisir un adapter disponible sur le compte ; les modèles, crédits et limites
-restent contrôlés par le serveur. Cette première version crée une image par job.
-Elle ne propose pas encore de commandes texte, vidéo, audio ou gestion Scribe.
+restent contrôlés par le serveur. La requête crée une image par défaut ; si le
+fournisseur retourne plusieurs images, toutes restent accessibles dans les résultats.
+HTTP 202 confirme la prise en compte : le statut retourné peut déjà être `queued`,
+`running`, `done` ou `failed`, notamment lors d’une reprise avec la même clé.
+`--wait` observe ce même job et restitue son résultat ou son échec, sans recréer de génération.
+Utiliser la CLI **v0.1.1 ou ultérieure** : v0.1.0 ne reconnaît que les accusés `queued`.
+Les commandes de génération texte, vidéo et audio ne sont pas encore disponibles ;
+les projets Scribe sont accessibles avec les commandes créatives ci-dessous.
 Les résultats contiennent des URL temporaires ; demander de nouveau le job pour
 obtenir des liens frais. La CLI ne télécharge ni n’ouvre automatiquement ces URL.
 
@@ -83,5 +89,54 @@ Les données JSON vont sur stdout, les diagnostics sur stderr.
 | 3              | Authentification absente ou refusée             |
 | 4              | Attente expirée ou interrompue                  |
 
+## Projets créatifs avec Scribe
+
+Depuis la CLI v0.3.0, créer un univers, ses personnages et son histoire avec
+l’assistant de son choix, puis proposer ses modifications dans Scribe.
+Scribe conserve la version de référence ; les fichiers locaux ne la remplacent
+jamais automatiquement.
+
+1. Dans [Scribe](https://scribe.kiofco.com/projects), créer un projet créatif :
+   son livre et son univers sont créés ensemble.
+2. Après `kiofco auth login`, ouvrir un dossier de travail dédié et récupérer le
+   projet. Le terminal propose un sélecteur ; dans un script, utiliser
+   `kiofco project list --json`, puis `kiofco project checkout --project <id>`.
+3. Installer les entrées pour les assistants utilisés :
+
+```sh
+mkdir mon-univers
+cd mon-univers
+kiofco project checkout
+kiofco skills install --hosts claude,codex,chatgpt
+kiofco skills list
+```
+
+Ouvrir ce dossier dans l’assistant, lui demander de lire le pack installé,
+puis travailler sur les documents Markdown en conservant leurs identifiants.
+Le pack guide l’univers, les personnages, le plan, les scènes et les références
+visuelles. Il utilise seulement les capacités réellement disponibles dans
+l’offre de l’assistant, sans basculer automatiquement vers une génération
+payante Kiofco.
+
+```sh
+kiofco project status
+kiofco project diff <document-id>
+kiofco project propose <document-id>
+```
+
+Relire et approuver la proposition dans Scribe, puis récupérer la référence
+avec `kiofco project pull`. Une proposition obsolète demande une réconciliation ;
+elle ne fusionne ni n’écrase automatiquement les modifications concurrentes.
+`status`, `diff` et les exports restent utilisables hors ligne.
+
+```sh
+kiofco project export --format html --output creative/exports/bible.html
+```
+
+La synchronisation, les skills et les exports Markdown/HTML/Fountain ne demandent
+ni Node ni Python. Ces runtimes servent uniquement aux outils facultatifs,
+jamais installés ou exécutés automatiquement. Les commandes `kiofco project --help`,
+`kiofco skills --help` et `kiofco tools --help` détaillent les options ;
+`--directory <dossier>` sélectionne une autre racine locale.
 
 Source maintained in a private monorepo. This repository contains distribution files only.
