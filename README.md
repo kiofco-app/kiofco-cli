@@ -130,8 +130,11 @@ elle ne fusionne ni n’écrase automatiquement les modifications concurrentes.
 `status`, `diff` et les exports restent utilisables hors ligne.
 
 ```sh
-kiofco project export --format html --output creative/exports/bible.html
+kiofco project export --format html --output creative/exports/bible
 ```
+
+`--output` désigne un nouveau dossier de bundle ; ouvrir ensuite
+`creative/exports/bible/bible.html`.
 
 La synchronisation, les skills et les exports Markdown/HTML/Fountain ne demandent
 ni Node ni Python. Ces runtimes servent uniquement aux outils facultatifs,
